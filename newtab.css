@@ -1,0 +1,550 @@
+/* ==========================================================================
+   WELCOME TO THE EDGE — 新标签页
+   ──────────────────────────────────────────────────────────────────────────
+   · 仅使用系统字体与本地生成资源，不引用任何远程字体 / 图片 / CDN
+   · 背景为灰黑渐变，低饱和、克制；高亮仅用少量血红色作点缀
+   · 画布（地球 / 月球 / 尘埃）由 newtab.js 绘制，本文件只负责版式与氛围
+   ========================================================================== */
+
+:root {
+  --ink: #050607;
+  --paper: #eef0f2;
+  --ash: #b8bdc3;
+  --blood: #b52c2c;
+  --blood-dim: rgba(181, 44, 44, 0.55);
+  --hud: rgba(236, 240, 243, 0.34);
+  --hud-dim: rgba(236, 240, 243, 0.2);
+
+  --font-display: "Bahnschrift", "Segoe UI Variable Display", "Segoe UI",
+    "Helvetica Neue", Arial, "Microsoft YaHei", sans-serif;
+  --font-cn: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC",
+    "Noto Sans SC", "Source Han Sans SC", sans-serif;
+  --font-mono: "Cascadia Mono", "Consolas", "SF Mono", ui-monospace, monospace;
+
+  --edge-left: 6vw;
+  --pad: 6vw;
+  --pad-y: 3.4vh;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+html {
+  background: var(--ink);
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  cursor: default;
+  user-select: none;
+}
+
+/* 舞台：固定铺满视口，永不出滚动条 */
+.stage {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* ── 背景：灰黑渐变 + 冷雾光 ────────────────────────────────────────────── */
+
+.veil {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    /* 地球背后的冷雾，模拟大气散射 */
+    radial-gradient(
+      92% 78% at 84% 50%,
+      rgba(158, 166, 176, 0.13) 0%,
+      rgba(92, 98, 106, 0.055) 36%,
+      rgba(10, 11, 13, 0) 66%
+    ),
+    /* 标题背后一层极淡的气团，避免左侧完全死黑 */
+    radial-gradient(
+      55% 45% at 30% 62%,
+      rgba(150, 158, 168, 0.05) 0%,
+      rgba(150, 158, 168, 0) 70%
+    ),
+    /* 左上极弱的高光，给画面一点方向感 */
+    radial-gradient(
+      80% 62% at 18% 3%,
+      rgba(196, 202, 210, 0.11) 0%,
+      rgba(120, 126, 134, 0.035) 34%,
+      rgba(6, 7, 9, 0) 62%
+    ),
+    /* 主体灰黑渐变 */
+    radial-gradient(
+      140% 120% at 46% 44%,
+      #15181c 0%,
+      #0c0e11 48%,
+      #070809 100%
+    ),
+    linear-gradient(158deg, #101316 0%, #0a0b0d 52%, #0d0e11 100%);
+}
+
+/* 底部一条极淡的地平线雾气，压住画面下沿 */
+.veil::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 42vh;
+  background: radial-gradient(
+    120% 100% at 62% 100%,
+    rgba(150, 158, 168, 0.055) 0%,
+    rgba(150, 158, 168, 0) 62%
+  );
+}
+
+/* ── 巨大白色字 ─────────────────────────────────────────────────────────── */
+
+.wordmark {
+  position: absolute;
+  left: var(--edge-left);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  width: min(94vw, 2100px);
+  pointer-events: none;
+}
+
+.wordmark::before {
+  content: "";
+  position: absolute;
+  left: clamp(-30px, -1.9vw, -16px);
+  top: -0.2em;
+  bottom: 0.1em;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    rgba(156, 26, 26, 0.55) 0%,
+    rgba(236, 240, 243, 0.16) 26%,
+    rgba(236, 240, 243, 0.06) 76%,
+    rgba(236, 240, 243, 0) 100%
+  );
+}
+
+.wordmark__cn::after {
+  content: "";
+  display: block;
+  width: clamp(120px, 17vw, 320px);
+  height: 1px;
+  margin-top: clamp(14px, 2.2vh, 26px);
+  background: linear-gradient(
+    90deg,
+    rgba(236, 240, 243, 0.14) 0%,
+    rgba(236, 240, 243, 0.05) 58%,
+    rgba(236, 240, 243, 0) 100%
+  );
+}
+
+.wordmark__meta {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 1vw, 18px);
+  margin-bottom: clamp(12px, 2.4vh, 30px);
+}
+
+.wordmark__meta .rule {
+  width: 34px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    #c02f2f 0%,
+    rgba(192, 47, 47, 0.55) 52%,
+    rgba(192, 47, 47, 0) 100%
+  );
+}
+
+.wordmark__caption {
+  font-family: var(--font-mono);
+  font-size: clamp(9px, 0.66vw, 12px);
+  letter-spacing: 0.26em;
+  color: rgba(236, 240, 243, 0.5);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.crosshair {
+  position: relative;
+  width: 11px;
+  height: 11px;
+  opacity: 0.4;
+  flex: 0 0 auto;
+}
+
+.crosshair::before,
+.crosshair::after {
+  content: "";
+  position: absolute;
+  background: var(--paper);
+}
+
+.crosshair::before {
+  left: 0;
+  top: 5px;
+  width: 11px;
+  height: 1px;
+}
+
+.crosshair::after {
+  left: 5px;
+  top: 0;
+  width: 1px;
+  height: 11px;
+}
+
+.wordmark__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(42px, 10vw, 420px);
+  line-height: 0.82;
+  letter-spacing: -0.012em;
+  text-transform: uppercase;
+  color: rgba(246, 248, 250, 0.97);
+  text-shadow: 0 0 60px rgba(0, 0, 0, 0.5);
+  filter: blur(0.3px);
+}
+
+.wordmark__line {
+  position: relative;
+  display: block;
+  white-space: nowrap;
+}
+
+.wordmark__line--shift {
+  padding-left: 2.6vw;
+}
+
+.wordmark__cn {
+  margin: clamp(10px, 2vh, 28px) 0 0;
+  padding-left: 0.1em;
+  font-family: var(--font-cn);
+  font-weight: 300;
+  font-size: clamp(13px, 1.6vw, 32px);
+  font-weight: 400;
+  letter-spacing: 0.38em;
+  line-height: 1;
+  color: rgba(238, 240, 242, 0.78);
+  white-space: nowrap;
+}
+
+.wordmark__accent {
+  color: var(--blood);
+  letter-spacing: 0.46em;
+  margin-left: 0.14em;
+  padding-bottom: 0.06em;
+  border-bottom: 1px solid rgba(200, 60, 52, 0.55);
+}
+
+/* ── 搜索框：在「边缘」右侧，极简下划线 ────────────────────────────────── */
+
+.wordmark__lower {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: clamp(14px, 2.4vw, 46px);
+}
+
+.wordmark__lower .wordmark__cn {
+  margin: 0;
+}
+
+.search {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 0.85em;
+  pointer-events: auto;
+  transform: translateY(-0.1em);
+}
+
+.search__k {
+  font-family: var(--font-mono);
+  font-size: clamp(9px, 0.66vw, 11px);
+  letter-spacing: 0.24em;
+  color: rgba(236, 240, 243, 0.38);
+  white-space: nowrap;
+  text-transform: uppercase;
+  transition: color 220ms ease;
+}
+
+.search__field {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.search__input {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(236, 240, 243, 0.18);
+  border-radius: 0;
+  color: rgba(240, 243, 246, 0.9);
+  font-family: var(--font-mono);
+  font-size: clamp(11px, 0.8vw, 14px);
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  padding: 0.3em 1.6em 0.34em 0.1em;
+  width: clamp(150px, 16vw, 260px);
+  outline: none;
+  caret-color: var(--blood);
+  user-select: text;
+  transition: border-color 220ms ease;
+}
+
+.search__input::placeholder {
+  color: rgba(236, 240, 243, 0.32);
+  letter-spacing: 0.12em;
+}
+
+.search__input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.search__input:hover {
+  border-bottom-color: rgba(236, 240, 243, 0.32);
+}
+
+.search__input:focus {
+  border-bottom-color: rgba(196, 52, 46, 0.85);
+}
+
+.search__go {
+  position: absolute;
+  right: 0.15em;
+  bottom: 0.34em;
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 0.72vw, 13px);
+  color: rgba(236, 240, 243, 0.28);
+  pointer-events: none;
+  transition: color 220ms ease;
+}
+
+.search:focus-within .search__go,
+.search:focus-within .search__k {
+  color: rgba(196, 52, 46, 0.85);
+}
+
+/* 窄屏：搜索框换行到中文下面 */
+@media (max-width: 900px) {
+  .wordmark__lower {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .search__input {
+    width: min(62vw, 240px);
+  }
+}
+
+/* ── 画布 ───────────────────────────────────────────────────────────────── */
+
+.globe-canvas,
+.scene-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* 地球在文字之上，装饰层与尘埃在地球之上 */
+.globe-canvas {
+  z-index: 2;
+}
+
+.scene-canvas {
+  z-index: 3;
+}
+
+/* ── 暗角 / 颗粒 ────────────────────────────────────────────────────────── */
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      128% 118% at 44% 42%,
+      rgba(0, 0, 0, 0) 34%,
+      rgba(0, 0, 0, 0.34) 68%,
+      rgba(0, 0, 0, 0.72) 100%
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.28) 0%,
+      rgba(0, 0, 0, 0) 14%,
+      rgba(0, 0, 0, 0) 86%,
+      rgba(0, 0, 0, 0.32) 100%
+    );
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0.055;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 220px 220px;
+}
+
+/* ── HUD：四角技术标注 ──────────────────────────────────────────────────── */
+
+.hud {
+  position: absolute;
+  z-index: 6;
+  display: flex;
+  align-items: baseline;
+  gap: 0.7em;
+  font-family: var(--font-mono);
+  font-size: clamp(9px, 0.66vw, 12px);
+  letter-spacing: 0.24em;
+  line-height: 1;
+  color: rgba(236, 240, 243, 0.6);
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  text-shadow:
+    0 0 3px #050607,
+    0 0 10px rgba(5, 6, 7, 0.9),
+    0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.hud__k {
+  color: rgba(236, 240, 243, 0.4);
+}
+
+.hud__sep {
+  color: rgba(236, 240, 243, 0.34);
+  letter-spacing: 0;
+}
+
+.hud__v {
+  color: rgba(236, 240, 243, 0.68);
+}
+
+.hud--top-left {
+  left: var(--pad);
+  top: var(--pad-y);
+}
+
+.hud--top-right {
+  right: var(--pad);
+  top: var(--pad-y);
+  /* 右上角常常压在受光的地球上：加一层羽化底衬保证可读 */
+  padding: 0.7em 0.9em;
+  margin: -0.7em -0.9em 0 0;
+  background: radial-gradient(
+    120% 160% at 72% 50%,
+    rgba(5, 6, 7, 0.82) 0%,
+    rgba(5, 6, 7, 0) 72%
+  );
+}
+
+.hud--bottom-left {
+  left: var(--pad);
+  bottom: calc(var(--pad-y) - 0.4vh);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.85em;
+}
+
+.hud--bottom-right {
+  right: var(--pad);
+  bottom: calc(var(--pad-y) - 0.4vh);
+}
+
+.hud__clock {
+  font-size: clamp(15px, 1.32vw, 26px);
+  letter-spacing: 0.16em;
+  color: rgba(238, 241, 244, 0.62);
+  font-variant-numeric: tabular-nums;
+  font-weight: 300;
+}
+
+.hud__date {
+  color: rgba(236, 240, 243, 0.26);
+  letter-spacing: 0.28em;
+}
+
+/* 减少动态：没有任何 CSS 动画，但同样尊重用户偏好 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── 窄屏与超宽屏的轻度适配 ─────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  :root {
+    --edge-left: 7vw;
+    --pad: 6vw;
+  }
+
+  .wordmark__title {
+    font-size: clamp(34px, 10.6vw, 96px);
+    line-height: 0.86;
+  }
+
+  .wordmark__line--shift {
+    padding-left: 0;
+  }
+
+  .wordmark__cn {
+    letter-spacing: 0.36em;
+  }
+
+  .hud {
+    font-size: 8px;
+    letter-spacing: 0.18em;
+  }
+}
+
+@media (min-aspect-ratio: 21/9) and (min-width: 1800px) {
+  .wordmark__title {
+    font-size: clamp(60px, 8.4vw, 220px);
+  }
+}
+
+/* 高对比模式：保证文字仍可读 */
+@media (forced-colors: active) {
+  .wordmark__title {
+    color: CanvasText;
+  }
+
+  .wordmark__line::before,
+  .wordmark__line::after {
+    display: none;
+  }
+}

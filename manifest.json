@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "WELCOME TO THE EDGE — 动态壁纸新标签页",
+  "short_name": "THE EDGE",
+  "version": "1.0.0",
+  "description": "自定义新标签页：灰黑渐变、缓慢自转的 2D 地球与月球、景深尘埃。全部资源本地生成，无远程请求，无第三方库。",
+  "minimum_chrome_version": "102",
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}

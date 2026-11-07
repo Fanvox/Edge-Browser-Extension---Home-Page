@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="color-scheme" content="dark">
+  <title>WELCOME TO THE EDGE</title>
+  <link rel="stylesheet" href="newtab.css">
+</head>
+<body>
+  <main class="stage">
+
+    <!-- 背景：灰黑渐变 / 雾光 / 水体暗部。全部由 CSS 绘制，不加载任何图片 -->
+    <div class="veil" aria-hidden="true"></div>
+
+    <!-- 巨大白色字：位于地球图层之下，用于制造前景遮挡与景深 -->
+    <section class="wordmark" aria-label="WELCOME TO THE EDGE，欢迎来到边缘">
+      <div class="wordmark__meta" aria-hidden="true">
+        <span class="rule"></span>
+        <span class="wordmark__caption">001 — DYNAMIC WALLPAPER / 动态壁纸</span>
+        <span class="crosshair"></span>
+      </div>
+
+      <h1 class="wordmark__title">
+        <span class="wordmark__line">WELCOME TO</span>
+        <span class="wordmark__line wordmark__line--shift">THE EDGE</span>
+      </h1>
+
+      <div class="wordmark__lower">
+        <p class="wordmark__cn" aria-hidden="true">欢迎来到<span class="wordmark__accent">边缘</span></p>
+
+        <form class="search" id="search" role="search" action="https://www.bing.com/search" method="get"
+              autocomplete="off" aria-label="搜索">
+          <label class="search__k" for="search-input">SEARCH / 搜索</label>
+          <span class="search__field">
+            <input class="search__input" id="search-input" name="q" type="search" placeholder="输入关键词"
+                   autocomplete="off" autocapitalize="off" spellcheck="false">
+            <span class="search__go" aria-hidden="true">↵</span>
+          </span>
+        </form>
+      </div>
+    </section>
+
+    <!-- 地球层：WebGL 球面渲染（不可用时自动回退到 Canvas 2D 逐像素方案） -->
+    <canvas id="globe" class="globe-canvas" aria-hidden="true"></canvas>
+
+    <!-- 场景层：月球 / 景深尘埃 / 大气与量规装饰（Canvas 2D） -->
+    <canvas id="scene" class="scene-canvas" aria-hidden="true"></canvas>
+
+    <!-- 静态覆盖层：暗角、纸感颗粒、HUD 文本 -->
+    <div class="vignette" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+
+    <div class="hud hud--top-left" aria-hidden="true">
+      <span class="hud__k">NEW TAB</span>
+      <span class="hud__sep">//</span>
+      <span class="hud__v">新标签页</span>
+    </div>
+
+    <div class="hud hud--top-right" aria-hidden="true">
+      <span class="hud__k">SYS.01</span>
+      <span class="hud__sep">//</span>
+      <span class="hud__v" id="tz">UTC+08:00</span>
+    </div>
+
+    <div class="hud hud--bottom-left" aria-hidden="true">
+      <span class="hud__clock" id="clock">--:--</span>
+      <span class="hud__date" id="dateline">—</span>
+    </div>
+
+    <div class="hud hud--bottom-right" aria-hidden="true">
+      <span class="hud__k">MOTION</span>
+      <span class="hud__sep">//</span>
+      <span class="hud__v hud__v--state" id="motion-state">ACTIVE</span>
+    </div>
+
+  </main>
+
+  <script src="newtab.js"></script>
+</body>
+</html>
